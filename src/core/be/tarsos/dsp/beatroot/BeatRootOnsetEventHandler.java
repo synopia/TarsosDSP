@@ -42,7 +42,7 @@ public class BeatRootOnsetEventHandler implements OnsetHandler {
 	
 	@Override
 	public void handleOnset(double time, double salience) {
-		double roundedTime = Math.round(time *100 )/100.0;
+		double roundedTime = Math.round(time *10000 )/10000.0;
 		Event e = newEvent(roundedTime,0);
 		e.salience = salience;
 		onsetList.add(e);		

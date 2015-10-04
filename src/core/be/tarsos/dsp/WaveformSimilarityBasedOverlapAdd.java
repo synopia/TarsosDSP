@@ -48,7 +48,10 @@ package be.tarsos.dsp;
  * @author Joren Six
  * @author Olli Parviainen
  */
-public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {	
+public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {
+    public interface Callback {
+        void setStepSizeAndOverlap(int inputBufferSize, int overlap);
+    }
 	private int seekWindowLength;
 	private int seekLength;
 	private int overlapLength;
@@ -62,7 +65,7 @@ public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {
 	
 	private double tempo;
 	
-	private AudioDispatcher dispatcher;
+	private Callback callback;
 
 	private Parameters newParameters;
 	
@@ -79,11 +82,20 @@ public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {
 		newParameters = params;
 	}
 	
-	public void setDispatcher(AudioDispatcher newDispatcher){
-		this.dispatcher = newDispatcher;
+	public void setDispatcher(final AudioDispatcher newDispatcher){
+		setCallback(new Callback() {
+			@java.lang.Override
+			public void setStepSizeAndOverlap(int inputBufferSize, int overlap) {
+				newDispatcher.setStepSizeAndOverlap(inputBufferSize, overlap);
+			}
+		});
 	}
-	
-	private void applyNewParameters(){
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
+    private void applyNewParameters(){
 		Parameters params = newParameters;
 		int oldOverlapLength = overlapLength;
 		overlapLength = (int) ((params.getSampleRate() * params.getOverlapMs())/1000);
@@ -112,7 +124,7 @@ public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {
 		return sampleReq;
 	}
 	
-	private int getOutputBufferSize(){
+	public int getOutputBufferSize(){
 		return seekWindowLength - overlapLength;
 	}
 	
@@ -215,6 +227,11 @@ public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {
 	
 	@Override
 	public boolean process(AudioEvent audioEvent) {
+		if(newParameters!=null){
+			applyNewParameters();
+			callback.setStepSizeAndOverlap(getInputBufferSize(),getOverlap());
+		}
+
 		float[] audioFloatBuffer = audioEvent.getFloatBuffer();
 		assert audioFloatBuffer.length == getInputBufferSize();
 		
@@ -241,10 +258,6 @@ public class WaveformSimilarityBasedOverlapAdd implements AudioProcessor {
 		audioEvent.setFloatBuffer(outputFloatBuffer);
 		audioEvent.setOverlap(0);
 		
-		if(newParameters!=null){
-			applyNewParameters();
-			dispatcher.setStepSizeAndOverlap(getInputBufferSize(),getOverlap());
-		}
 		return true;
 	}
 

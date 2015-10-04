@@ -71,10 +71,16 @@ public class PipedAudioStream {
 	public TarsosDSPAudioInputStream getMonoStream(int targetSampleRate){
 		InputStream stream = null;
 		stream = decoder.getDecodedStream(resource, targetSampleRate);
-		return new UniversalAudioInputStream(stream, getTargetFormat(targetSampleRate));
+		return new UniversalAudioInputStream(stream, getTargetFormat(1, targetSampleRate));
 	}
-	
-	private TarsosDSPAudioFormat getTargetFormat(int targetSampleRate){
-		return new TarsosDSPAudioFormat(targetSampleRate, 16, 1, true, false);
+
+	public TarsosDSPAudioInputStream getStereoStream(int targetSampleRate){
+		InputStream stream = null;
+		stream = decoder.getDecodedStream(2, resource, targetSampleRate);
+		return new UniversalAudioInputStream(stream, getTargetFormat(2, targetSampleRate));
+	}
+
+	private TarsosDSPAudioFormat getTargetFormat(int channels, int targetSampleRate){
+		return new TarsosDSPAudioFormat(targetSampleRate, 16, channels, true, false);
 	}
 }

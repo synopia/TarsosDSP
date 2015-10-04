@@ -188,7 +188,7 @@ public class Agent {
 	 *  @param level The level of detail in debugging
 	 */
 	public void print(int level) {
-		System.out.printf("\tAg#%4d: %5.3f", idNumber, beatInterval);
+		System.out.printf("\tAg#%4d: %5.5f", idNumber, beatInterval);
 		if (level >= 1) {
 			System.out.printf(
 					"  Beat#%3d  Time=%7.3f  Score=%4.2f:P%4.2f:%3.1f",

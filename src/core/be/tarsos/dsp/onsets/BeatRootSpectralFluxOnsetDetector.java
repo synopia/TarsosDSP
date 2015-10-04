@@ -132,13 +132,14 @@ public class BeatRootSpectralFluxOnsetDetector implements AudioProcessor, OnsetD
 	private final FFT fft;
 	
 	public BeatRootSpectralFluxOnsetDetector(AudioDispatcher d,int fftSize, int hopSize){
-		this.hopSize = hopSize; 
-		this.hopTime = hopSize/d.getFormat().getSampleRate();
+		this(1000, d.getFormat().getSampleRate(), fftSize, hopSize);
+	}
+	public BeatRootSpectralFluxOnsetDetector(int durationInFrames, float sampleRate,int fftSize, int hopSize){
+		this.hopSize = hopSize;
+
+		this.hopTime = hopSize/ sampleRate;
 		this.fftSize = fftSize;
-		//no overlap
-		//FIXME:
-		int durationInFrames = -1000; 
-		totalFrames = (int)(durationInFrames / hopSize) + 4;
+		totalFrames = (durationInFrames / hopSize) + 4;
 		energy = new double[totalFrames*energyOversampleFactor];
 		spectralFlux = new double[totalFrames];
 		
@@ -146,7 +147,7 @@ public class BeatRootSpectralFluxOnsetDetector implements AudioProcessor, OnsetD
 		imBuffer = new float[fftSize/2];
 		prevFrame = new float[fftSize/2];
 		
-		makeFreqMap(fftSize, d.getFormat().getSampleRate());
+		makeFreqMap(fftSize, sampleRate);
 		
 		newFrame = new double[freqMapSize];
 		frames = new double[totalFrames][freqMapSize];

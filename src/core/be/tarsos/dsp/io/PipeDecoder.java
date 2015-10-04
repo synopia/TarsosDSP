@@ -148,12 +148,15 @@ public class PipeDecoder {
 
 	
 	public InputStream getDecodedStream(final String resource,final int targetSampleRate) {
-		
+		return getDecodedStream(1, resource, targetSampleRate);
+	}
+	public InputStream getDecodedStream(final int channels, final String resource,final int targetSampleRate) {
+
 		try {
 			String command = pipeCommand;
 			command = command.replace("%resource%", resource);
 			command = command.replace("%sample_rate%", String.valueOf(targetSampleRate));
-			command = command.replace("%channels%","1");
+			command = command.replace("%channels%",Integer.toString(channels));
 			
 			ProcessBuilder pb;
 			pb= new ProcessBuilder(pipeEnvironment, pipeArgument , command);

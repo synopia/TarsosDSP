@@ -54,7 +54,7 @@ public class AudioDispatcher implements Runnable {
 	 * The audio stream (in bytes), conversion to float happens at the last
 	 * moment.
 	 */
-	private final TarsosDSPAudioInputStream audioInputStream;
+	private TarsosDSPAudioInputStream audioInputStream;
 
 	/**
 	 * This buffer is reused again and again to store audio data using the float
@@ -80,7 +80,7 @@ public class AudioDispatcher implements Runnable {
 	 */
 	private final TarsosDSPAudioFloatConverter converter;
 	
-	private final TarsosDSPAudioFormat format;
+	private TarsosDSPAudioFormat format;
 
 	/**
 	 * The floatOverlap: the number of elements that are copied in the buffer
@@ -147,15 +147,15 @@ public class AudioDispatcher implements Runnable {
 	 *            AudioBufferSize is common (512, 1024) for an FFT.
 	 */
 	public AudioDispatcher(final TarsosDSPAudioInputStream stream, final int audioBufferSize, final int bufferOverlap){
+		this(stream.getFormat(), audioBufferSize, bufferOverlap);
+		this.audioInputStream = stream;
+	}
+	public AudioDispatcher(final TarsosDSPAudioFormat format, final int audioBufferSize, final int bufferOverlap){
 		// The copy on write list allows concurrent modification of the list while
 		// it is iterated. A nice feature to have when adding AudioProcessors while
 		// the AudioDispatcher is running.
 		audioProcessors = new CopyOnWriteArrayList<AudioProcessor>();
-		audioInputStream = stream;
-
-		format = audioInputStream.getFormat();
-		
-			
+		this.format = format;
 		setStepSizeAndOverlap(audioBufferSize, bufferOverlap);
 		
 		audioEvent = new AudioEvent(format);
